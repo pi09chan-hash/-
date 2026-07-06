@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "[Console]::InputEncoding = [System.Text.Encoding]::UTF8; [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; $json = [Console]::In.ReadToEnd() | ConvertFrom-Json; $f = $json.tool_input.file_path; if (-not $f) { $f = $json.tool_response.filePath }; if ($f -like '*drafts*') { $repo = 'C:\\Users\\admin\\claude-x-ops'; git -C $repo add \"$f\"; $staged = git -C $repo diff --cached --name-only; if ($staged) { git -C $repo commit -m \"draft: $(Split-Path $f -Leaf)\" *> $null; git -C $repo push origin main *> $null } }",
+            "timeout": 30,
+            "statusMessage": "下書きをpush中..."
+          }
+        ]
+      }
+    ]
+  }
+}
